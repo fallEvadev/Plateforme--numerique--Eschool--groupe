@@ -7,14 +7,15 @@ import {
 } from '@mui/material'
 import { 
   CheckCircle, Visibility, Topic, Search, Summarize, 
-  AutoMode, Assessment, PictureAsPdf, Key, Edit
+  AutoMode, Assessment, PictureAsPdf, Key, Edit,
+  Share, WhatsApp, Sms
 } from '@mui/icons-material'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import { setDailyCode, updateReportStatus, editReport } from '../../features/auth/authSlice'
+import { setDailyCode, publishCode, updateReportStatus, editReport } from '../../features/auth/authSlice'
 
 export default function Reports() {
   const dispatch = useAppDispatch()
-  const { dailyPedagogicalCode, reports: globalReports = [] } = useAppSelector(s => s.auth)
+  const { dailyPedagogicalCode, isCodePublished, reports: globalReports = [] } = useAppSelector(s => s.auth)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedReport, setSelectedReport] = useState<any>(null)
   const [openReviewDialog, setOpenReviewDialog] = useState(false)
@@ -122,14 +123,26 @@ export default function Reports() {
                     {dailyPedagogicalCode || '------'}
                   </Typography>
                 </Box>
-                <Button 
-                  variant="contained" 
-                  color="primary" 
-                  onClick={generateDailyCode}
-                  sx={{ borderRadius: 2, px: 3, py: 1.5, fontWeight: 700 }}
-                >
-                  {dailyPedagogicalCode ? 'Renouveler le code' : 'Générer le code'}
-                </Button>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button 
+                    variant="contained" 
+                    color="primary" 
+                    onClick={generateDailyCode}
+                    sx={{ borderRadius: 2, px: 2, py: 1.5, fontWeight: 700 }}
+                  >
+                    {dailyPedagogicalCode ? 'Renouveler' : 'Générer'}
+                  </Button>
+                  <Button 
+                    variant={isCodePublished ? "contained" : "outlined"} 
+                    color="success" 
+                    disabled={!dailyPedagogicalCode || isCodePublished}
+                    onClick={() => dispatch(publishCode())}
+                    startIcon={<CheckCircle />}
+                    sx={{ borderRadius: 2, px: 2, py: 1.5, fontWeight: 700 }}
+                  >
+                    {isCodePublished ? 'Code Publié' : 'Publier sur l\'Espace Partenaire'}
+                  </Button>
+                </Box>
               </Box>
               {!dailyPedagogicalCode && (
                 <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>

@@ -69,7 +69,7 @@ export default function AdminAttendance() {
                     <TableCell>Date</TableCell>
                     <TableCell>Statut</TableCell>
                     <TableCell>Motif</TableCell>
-                    <TableCell>Enseignant</TableCell>
+                    <TableCell>Formateur</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

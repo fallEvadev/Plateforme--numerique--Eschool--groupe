@@ -22,6 +22,7 @@ interface NavItem {
 const NAV_ITEMS: Record<string, NavItem[]> = {
   directeur: [
     { label: 'Vue d\'ensemble', icon: <Dashboard />, path: '/directeur' },
+    { label: 'Utilisateurs', icon: <People />, path: '/directeur/users' },
   ],
   pedagogie: [
     { label: 'Gestion des rapports', icon: <Assignment />, path: '/pedagogie/reports' },
@@ -41,6 +42,9 @@ const NAV_ITEMS: Record<string, NavItem[]> = {
     { label: 'Règlement intérieur', icon: <MenuBook />, path: '/teacher/rules' },
     { label: 'Programme mensuel', icon: <Campaign />, path: '/teacher/program' },
   ],
+  ecole: [
+    { label: 'Tableau de bord', icon: <Dashboard />, path: '/ecole' },
+  ],
 }
 
 const roleLabels: Record<string, string> = {
@@ -49,6 +53,7 @@ const roleLabels: Record<string, string> = {
   drh: 'Mme Faye (DRH)',
   gestionnaire: 'M. Ndiaye (Gestion)',
   teacher: 'Formateur',
+  ecole: 'Ecole Partenaire',
 }
 
 interface SidebarProps {

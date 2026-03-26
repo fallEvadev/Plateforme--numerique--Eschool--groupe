@@ -4,90 +4,40 @@ import {
   Tab, Tabs, InputAdornment, IconButton, Alert, Avatar
 } from '@mui/material'
 import { Visibility, VisibilityOff, School } from '@mui/icons-material'
+import { useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '../app/hooks'
-import { loginSuccess, UserRole, AuthUser } from '../features/auth/authSlice'
+import { loginSuccess, UserRole } from '../features/auth/authSlice'
+import { USERS } from '../users'
 
-interface DemoAccount {
-  role: UserRole
-  label: string
-  username: string
-  password: string
-  user: AuthUser
-}
-
-const DEMO_ACCOUNTS: DemoAccount[] = [
-  {
-    role: 'directeur',
-    label: 'Directeur Général',
-    username: 'm.camara',
-    password: 'password123',
-    user: { id: 'd1', name: 'M. Camara', email: 'direction@eschool.dz', role: 'directeur' },
-  },
-  {
-    role: 'pedagogie',
-    label: 'Dir. Pédagogie',
-    username: 'm.lo',
-    password: 'password123',
-    user: { id: 'p1', name: 'M. Lô', email: 'pedagogie@eschool.dz', role: 'pedagogie' },
-  },
-  {
-    role: 'drh',
-    label: 'DRH',
-    username: 'mme.faye',
-    password: 'password123',
-    user: { id: 'drh1', name: 'Mme Faye', email: 'rh@eschool.dz', role: 'drh' },
-  },
-  {
-    role: 'gestionnaire',
-    label: 'Gestionnaire',
-    username: 'm.ndiaye',
-    password: 'password123',
-    user: { id: 'g1', name: 'M. Ndiaye', email: 'gestion@eschool.dz', role: 'gestionnaire' },
-  },
-  {
-    role: 'teacher',
-    label: 'Formateur',
-    username: 'prof.fall',
-    password: 'password123',
-    user: { id: 't1', name: 'Prof. Fall', email: 'prof.fall@eschool.dz', role: 'teacher', className: '3ème A' },
-  },
-]
-
-const roleColors: Record<UserRole, string> = {
-  directeur: '#1565C0',
-  pedagogie: '#1976D2',
-  drh: '#1E88E5',
-  gestionnaire: '#42A5F5',
-  teacher: '#1976D2',
-}
+import loginBg from '../assets/login_bg.png'
 
 export default function Login() {
   const dispatch = useAppDispatch()
-  const [activeTab, setActiveTab] = useState(0)
-  const [username, setUsername] = useState(DEMO_ACCOUNTS[0].username)
-  const [password, setPassword] = useState(DEMO_ACCOUNTS[0].password)
+  const navigate = useNavigate()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const activeAccount = DEMO_ACCOUNTS[activeTab]
-
-  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue)
-    setUsername(DEMO_ACCOUNTS[newValue].username)
-    setPassword(DEMO_ACCOUNTS[newValue].password)
-    setError('')
-  }
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    
     setLoading(true)
+
+    // Simulation de délai
     await new Promise(r => setTimeout(r, 800))
-    const match = DEMO_ACCOUNTS.find(a => a.username === username && a.password === password)
-    if (match) {
-      dispatch(loginSuccess({ user: match.user, token: 'mock-jwt-token-' + match.role }))
+
+    const userMatch = USERS.find(u => u.email === email && u.password === password)
+    
+    if (userMatch) {
+      const { password: _, ...userWithoutPassword } = userMatch
+      dispatch(loginSuccess({ 
+        user: userWithoutPassword, 
+        token: 'mock-jwt-token-' + userMatch.role 
+      }))
+      // Redirection instantanée vers l'espace dédié
+      navigate(`/${userMatch.role}`)
     } else {
       setError('Identifiant ou mot de passe incorrect.')
     }
@@ -97,13 +47,22 @@ export default function Login() {
   return (
     <Box sx={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0D47A1 0%, #1565C0 40%, #1E88E5 100%)',
+      backgroundImage: `url(${loginBg})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       p: 2,
       position: 'relative',
       overflow: 'hidden',
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: 0, left: 0, right: 0, bottom: 0,
+        bgcolor: 'rgba(0, 30, 60, 0.7)',
+        zIndex: 1,
+      }
     }}>
       {/* Background decoration */}
       {[...Array(4)].map((_, i) => (
@@ -115,10 +74,18 @@ export default function Login() {
           height: [300, 200, 150, 100][i],
           top: ['10%', '60%', '20%', '70%'][i],
           left: ['70%', '5%', '80%', '50%'][i],
+          zIndex: 1,
         }} />
       ))}
 
-      <Card sx={{ width: '100%', maxWidth: 480, borderRadius: 3, boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+      <Card sx={{ 
+        width: '100%', 
+        maxWidth: 480, 
+        borderRadius: 3, 
+        boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
+        position: 'relative',
+        zIndex: 2 
+      }}>
         <CardContent sx={{ p: 4 }}>
           {/* Header */}
           <Box sx={{ textAlign: 'center', mb: 3 }}>
@@ -138,53 +105,16 @@ export default function Login() {
             </Typography>
           </Box>
 
-          {/* Role Tabs */}
-          <Tabs
-            value={activeTab}
-            onChange={handleTabChange}
-            variant="scrollable"
-            scrollButtons="auto"
-            allowScrollButtonsMobile
-            sx={{
-              mb: 3,
-              '& .MuiTab-root': { fontSize: '0.75rem', fontWeight: 600, minHeight: 40 },
-              '& .MuiTabs-indicator': { height: 3, borderRadius: 2 },
-            }}
-          >
-            {DEMO_ACCOUNTS.map((acc) => (
-              <Tab key={acc.role} label={acc.label} />
-            ))}
-          </Tabs>
-
-          {/* Demo Account Info */}
-          <Box sx={{
-            p: 1.5, mb: 2, borderRadius: 2,
-            background: '#EBF3FF', border: '1px solid #BBDEFB',
-            display: 'flex', alignItems: 'center', gap: 1.5,
-          }}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: roleColors[activeAccount.role], fontSize: '0.8rem', fontWeight: 700 }}>
-              {activeAccount.user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-            </Avatar>
-            <Box>
-              <Typography variant="caption" color="primary" sx={{ fontWeight: 700, display: 'block' }}>
-                Compte démo : {activeAccount.username}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Mot de passe: {activeAccount.password}
-              </Typography>
-            </Box>
-          </Box>
-
           {/* Login Form */}
           <Box component="form" onSubmit={handleLogin} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {error && <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>}
             <TextField
-              label="Identifiant"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              label="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               fullWidth
               required
-              autoComplete="username"
+              autoComplete="email"
             />
             <TextField
               label="Mot de passe"

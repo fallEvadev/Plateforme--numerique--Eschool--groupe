@@ -185,7 +185,7 @@ const TEACHERS: Teacher[] = [
 const PARENTS: Parent[] = [
   { id: 'p1', name: 'Fatima Benali', email: 'f.benali@gmail.com', phone: '0555123456', address: 'Alger Centre', children: ['Amina Benali'], occupation: 'Médecin', status: 'active' },
   { id: 'p2', name: 'Mohamed Meziane', email: 'm.meziane@gmail.com', phone: '0555234567', address: 'Bab El Oued', children: ['Karim Meziane'], occupation: 'Ingénieur', status: 'active' },
-  { id: 'p3', name: 'Nadia Khelif', email: 'n.khelif@gmail.com', phone: '0555345678', address: 'El Harrach', children: ['Yasmine Khelif'], occupation: 'Enseignante', status: 'active' },
+  { id: 'p3', name: 'Nadia Khelif', email: 'n.khelif@gmail.com', phone: '0555345678', address: 'El Harrach', children: ['Yasmine Khelif'], occupation: 'Formateure', status: 'active' },
   { id: 'p4', name: 'Ali Brahimi', email: 'a.brahimi@gmail.com', phone: '0555456789', address: 'Hussein Dey', children: ['Omar Brahimi'], occupation: 'Commerçant', status: 'active' },
   { id: 'p5', name: 'Hind Mansouri', email: 'h.mansouri@gmail.com', phone: '0555567890', address: 'Kouba', children: ['Sara Mansouri'], occupation: 'Pharmacienne', status: 'active' },
 ]
@@ -258,7 +258,7 @@ const ANNOUNCEMENTS: Announcement[] = [
   { id: 'an1', title: 'Réunion des parents - Trimestre 2', content: "Chers parents, nous vous informons qu'une réunion se tiendra le 20 mars 2026 à 14h00 pour discuter des résultats du 2ème trimestre. Votre présence est souhaitée.", author: 'Administration', authorRole: 'admin', date: '2026-03-08', targetRoles: ['parent', 'teacher'], priority: 'high', pinned: true },
   { id: 'an2', title: 'Calendrier des examens - Trimestre 2', content: 'Le calendrier des compositions du 2ème trimestre est disponible. Veuillez consulter le tableau des emplois du temps pour les dates et horaires.', author: 'Administration', authorRole: 'admin', date: '2026-03-05', targetRoles: ['student', 'teacher', 'parent'], priority: 'high', pinned: true },
   { id: 'an3', title: 'Journée portes ouvertes', content: "L'établissement organise une journée portes ouvertes le 25 mars 2026. Tous les élèves et parents sont invités à participer.", author: 'Administration', authorRole: 'admin', date: '2026-03-01', targetRoles: ['student', 'teacher', 'parent'], priority: 'medium', pinned: false },
-  { id: 'an4', title: 'Formation continue - Enseignants', content: 'Une formation sur les nouvelles méthodes pédagogiques aura lieu le 22 mars. La participation est obligatoire pour tous les enseignants.', author: 'Direction Pédagogique', authorRole: 'admin', date: '2026-02-28', targetRoles: ['teacher'], priority: 'medium', pinned: false },
+  { id: 'an4', title: 'Formation continue - Formateurs', content: 'Une formation sur les nouvelles méthodes pédagogiques aura lieu le 22 mars. La participation est obligatoire pour tous les formateurs.', author: 'Direction Pédagogique', authorRole: 'admin', date: '2026-02-28', targetRoles: ['teacher'], priority: 'medium', pinned: false },
   { id: 'an5', title: "Compétition d'excellence - Inscriptions ouvertes", content: "Les inscriptions pour la compétition d'excellence inter-établissements sont ouvertes jusqu'au 30 mars. Parlez à votre professeur pour vous inscrire.", author: 'Conseiller Principal', authorRole: 'admin', date: '2026-02-25', targetRoles: ['student'], priority: 'low', pinned: false },
 ]
 

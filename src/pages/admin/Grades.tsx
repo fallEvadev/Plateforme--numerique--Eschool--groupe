@@ -48,7 +48,7 @@ export default function AdminGrades() {
                     <TableCell>Coef.</TableCell>
                     <TableCell>Appréciation</TableCell>
                     <TableCell>Date</TableCell>
-                    <TableCell>Enseignant</TableCell>
+                    <TableCell>Formateur</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

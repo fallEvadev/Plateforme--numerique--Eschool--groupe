@@ -2,9 +2,10 @@ import { useState } from 'react'
 import {
   Box, Typography, Card, CardContent, Tab, Tabs, Table, TableBody,
   TableCell, TableContainer, TableHead, TableRow, Chip, Avatar,
-  IconButton, Button, TextField, InputAdornment, Tooltip, Skeleton
+  IconButton, Button, TextField, InputAdornment, Tooltip, Skeleton,
+  Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem
 } from '@mui/material'
-import { Search, Add, Edit, Delete, Visibility } from '@mui/icons-material'
+import { Search, Add, Edit, Delete, Visibility, Block } from '@mui/icons-material'
 import {
   useGetStudentsQuery, useGetTeachersQuery, useGetParentsQuery
 } from '../../services/api'
@@ -22,8 +23,18 @@ function StatusChip({ status }: { status: string }) {
 }
 
 export default function AdminUsers() {
-  const [tab, setTab] = useState(0)
+  const [tab, setTab] = useState(1)
   const [search, setSearch] = useState('')
+  const [openAdd, setOpenAdd] = useState(false)
+  const [openBlock, setOpenBlock] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<any>(null)
+  const [formData, setFormData] = useState({ name: '', role: '' })
+
+  const handleClose = () => {
+    setOpenAdd(false)
+    setOpenBlock(false)
+    setFormData({ name: '', role: '' })
+  }
 
   const { data: students, isLoading: loadingStudents } = useGetStudentsQuery()
   const { data: teachers, isLoading: loadingTeachers } = useGetTeachersQuery()
@@ -52,18 +63,20 @@ export default function AdminUsers() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
         <Box>
           <Typography variant="h4">Gestion des utilisateurs</Typography>
-          <Typography variant="body2" color="text.secondary">Gérez les élèves, enseignants et parents</Typography>
+          <Typography variant="body2" color="text.secondary">Gérez les élèves, formateurs et parents</Typography>
         </Box>
-        <Button variant="contained" startIcon={<Add />}>Ajouter</Button>
+        <Button variant="contained" startIcon={<Add />} onClick={() => setOpenAdd(true)}>
+          Ajouter un Formateur
+        </Button>
       </Box>
 
       <Card>
         <CardContent>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Tabs value={tab} onChange={(_, v) => setTab(v)}>
-              <Tab label={`Élèves (${students?.length ?? 0})`} />
-              <Tab label={`Enseignants (${teachers?.length ?? 0})`} />
-              <Tab label={`Parents (${parents?.length ?? 0})`} />
+              {/* <Tab label={`Élèves (${students?.length ?? 0})`} /> */}
+              <Tab label={`Formateurs (${teachers?.length ?? 0})`} />
+              {/* <Tab label={`Parents (${parents?.length ?? 0})`} /> */}
             </Tabs>
             <TextField
               size="small"
@@ -111,7 +124,11 @@ export default function AdminUsers() {
                           <TableCell align="right">
                             <Tooltip title="Voir"><IconButton size="small"><Visibility fontSize="small" /></IconButton></Tooltip>
                             <Tooltip title="Modifier"><IconButton size="small"><Edit fontSize="small" /></IconButton></Tooltip>
-                            <Tooltip title="Supprimer"><IconButton size="small" color="error"><Delete fontSize="small" /></IconButton></Tooltip>
+                            <Tooltip title="Bloquer le compte">
+                              <IconButton size="small" color="error" onClick={() => { setSelectedUser(s); setOpenBlock(true); }}>
+                                <Block fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -125,7 +142,7 @@ export default function AdminUsers() {
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Enseignant</TableCell>
+                        <TableCell>Formateur</TableCell>
                         <TableCell>Matière</TableCell>
                         <TableCell>Classes</TableCell>
                         <TableCell>Téléphone</TableCell>
@@ -151,7 +168,11 @@ export default function AdminUsers() {
                           <TableCell><StatusChip status={t.status} /></TableCell>
                           <TableCell align="right">
                             <Tooltip title="Modifier"><IconButton size="small"><Edit fontSize="small" /></IconButton></Tooltip>
-                            <Tooltip title="Supprimer"><IconButton size="small" color="error"><Delete fontSize="small" /></IconButton></Tooltip>
+                            <Tooltip title="Bloquer le compte">
+                              <IconButton size="small" color="error" onClick={() => { setSelectedUser(t); setOpenBlock(true); }}>
+                                <Block fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -187,7 +208,11 @@ export default function AdminUsers() {
                           <TableCell><StatusChip status={p.status} /></TableCell>
                           <TableCell align="right">
                             <Tooltip title="Modifier"><IconButton size="small"><Edit fontSize="small" /></IconButton></Tooltip>
-                            <Tooltip title="Supprimer"><IconButton size="small" color="error"><Delete fontSize="small" /></IconButton></Tooltip>
+                            <Tooltip title="Bloquer le compte">
+                              <IconButton size="small" color="error" onClick={() => { setSelectedUser(p); setOpenBlock(true); }}>
+                                <Block fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -199,6 +224,46 @@ export default function AdminUsers() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={openAdd} onClose={handleClose} fullWidth maxWidth="xs">
+        <DialogTitle sx={{ fontWeight: 700 }}>Ajouter un nouveau Formateur</DialogTitle>
+        <DialogContent sx={{ mt: 1 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
+            <TextField
+              fullWidth
+              label="Nom complet"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            />
+            <TextField
+              fullWidth
+              label="Spécialité / Matière"
+              placeholder="Ex: Informatique, Mathématiques..."
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2.5, pt: 0 }}>
+          <Button onClick={handleClose} color="inherit">Annuler</Button>
+          <Button variant="contained" onClick={handleClose}>Confirmer l'ajout</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Modal Bloquer */}
+      <Dialog open={openBlock} onClose={handleClose} fullWidth maxWidth="xs">
+        <DialogTitle sx={{ fontWeight: 700, color: 'error.main' }}>Bloquer le compte</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" sx={{ mt: 1 }}>
+            Voulez-vous vraiment bloquer l'accès de <strong>{selectedUser?.name}</strong> ?
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            L'utilisateur ne pourra plus se connecter à la plateforme.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2.5 }}>
+          <Button onClick={handleClose} color="inherit">Annuler</Button>
+          <Button variant="contained" color="error" onClick={handleClose}>Bloquer définitivement</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }

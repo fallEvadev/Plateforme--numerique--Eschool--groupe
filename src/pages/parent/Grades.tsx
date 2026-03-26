@@ -56,7 +56,7 @@ export default function ParentGrades() {
                         <TableCell>Matière</TableCell>
                         <TableCell>Note</TableCell>
                         <TableCell>Appréciation</TableCell>
-                        <TableCell>Enseignant</TableCell>
+                        <TableCell>Formateur</TableCell>
                         <TableCell>Date</TableCell>
                       </TableRow>
                     </TableHead>

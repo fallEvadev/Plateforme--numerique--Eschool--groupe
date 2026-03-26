@@ -13,6 +13,7 @@ import Contracts from './pages/admin/Contracts'
 import Reports from './pages/admin/Reports'
 import Resources from './pages/admin/Resources'
 import PedagogyTimetable from './pages/admin/PedagogyTimetable'
+import AdminUsers from './pages/admin/Users'
 
 // Teacher pages
 import TeacherDashboard from './pages/teacher/Dashboard'
@@ -23,6 +24,9 @@ import Program from './pages/teacher/Program'
 
 // Maintenance pages
 import IssueList from './pages/maintenance/IssueList'
+
+// Ecole pages
+import SchoolDashboard from './pages/ecole/Dashboard'
 
 function ProtectedRoute({ children, allowedRoles }: { children: JSX.Element; allowedRoles: string[] }) {
   const { isAuthenticated, user } = useAppSelector((s) => s.auth)
@@ -43,6 +47,7 @@ export default function App() {
         {/* Directeur routes */}
         <Route path="/directeur" element={<ProtectedRoute allowedRoles={['directeur']}><MainLayout role="directeur" /></ProtectedRoute>}>
           <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
         </Route>
 
         {/* Pédagogie routes */}
@@ -73,6 +78,11 @@ export default function App() {
           <Route path="report" element={<DailyReport />} />
           <Route path="rules" element={<Rules />} />
           <Route path="program" element={<Program />} />
+        </Route>
+
+        {/* Ecole routes */}
+        <Route path="/ecole" element={<ProtectedRoute allowedRoles={['ecole']}><MainLayout role="ecole" /></ProtectedRoute>}>
+          <Route index element={<SchoolDashboard />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -32,7 +32,7 @@ export default function AdminSubjects() {
                   <TableRow>
                     <TableCell>Matière</TableCell>
                     <TableCell>Code</TableCell>
-                    <TableCell>Enseignant</TableCell>
+                    <TableCell>Formateur</TableCell>
                     <TableCell>Classes</TableCell>
                     <TableCell>H/semaine</TableCell>
                     <TableCell>Coefficient</TableCell>

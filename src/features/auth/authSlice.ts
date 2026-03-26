@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-export type UserRole = 'directeur' | 'pedagogie' | 'drh' | 'gestionnaire' | 'teacher'
+export type UserRole = 'directeur' | 'pedagogie' | 'drh' | 'gestionnaire' | 'teacher' | 'ecole'
 
 export interface AuthUser {
   id: string
@@ -31,6 +31,7 @@ interface AuthState {
   isAuthenticated: boolean
   dailyPedagogicalCode: string | null
   codeGeneratedAt: string | null
+  isCodePublished: boolean
   reports: Report[]
 }
 
@@ -40,6 +41,7 @@ const initialState: AuthState = {
   isAuthenticated: false,
   dailyPedagogicalCode: null,
   codeGeneratedAt: null,
+  isCodePublished: false,
   reports: [],
 }
 
@@ -60,6 +62,10 @@ const authSlice = createSlice({
     setDailyCode(state, action: PayloadAction<string>) {
       state.dailyPedagogicalCode = action.payload
       state.codeGeneratedAt = new Date().toISOString()
+      state.isCodePublished = false // Reset published flag on new code
+    },
+    publishCode(state) {
+      state.isCodePublished = true
     },
     addReport(state, action: PayloadAction<Report>) {
       state.reports = [action.payload, ...state.reports]
@@ -79,5 +85,7 @@ const authSlice = createSlice({
   },
 })
 
-export const { loginSuccess, logout, setDailyCode, addReport, updateReportStatus, editReport } = authSlice.actions
+export const { 
+  loginSuccess, logout, setDailyCode, publishCode, addReport, updateReportStatus, editReport 
+} = authSlice.actions
 export default authSlice.reducer
