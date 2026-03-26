@@ -1,45 +1,33 @@
 import { useState } from 'react'
 import {
   Box, Card, CardContent, TextField, Button, Typography,
-  Tab, Tabs, InputAdornment, IconButton, Alert, Avatar
+  Alert
 } from '@mui/material'
-import { Visibility, VisibilityOff, School } from '@mui/icons-material'
+import { School, ArrowBack } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
-import { useAppDispatch } from '../app/hooks'
-import { loginSuccess, UserRole } from '../features/auth/authSlice'
-import { USERS } from '../users'
 
 import loginBg from '../assets/login_bg.png'
 
-export default function Login() {
-  const dispatch = useAppDispatch()
+export default function ForgotPassword() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setSuccess('')
     setLoading(true)
 
     // Simulation de délai
-    await new Promise(r => setTimeout(r, 800))
+    await new Promise(r => setTimeout(r, 1500))
 
-    const userMatch = USERS.find(u => u.email === email && u.password === password)
-    
-    if (userMatch) {
-      const { password: _, ...userWithoutPassword } = userMatch
-      dispatch(loginSuccess({ 
-        user: userWithoutPassword, 
-        token: 'mock-jwt-token-' + userMatch.role 
-      }))
-      // Redirection instantanée vers l'espace dédié
-      navigate(`/${userMatch.role}`)
+    if (email.includes('@')) {
+      setSuccess('Si ce compte existe, un lien de récupération a été envoyé à ' + email)
     } else {
-      setError('Identifiant ou mot de passe incorrect.')
+      setError('Veuillez entrer une adresse email valide.')
     }
     setLoading(false)
   }
@@ -100,74 +88,52 @@ export default function Login() {
             <Typography variant="h4" sx={{ fontWeight: 700, color: 'primary.dark', letterSpacing: '-0.5px' }}>
               E-SCHOOL GROUPE
             </Typography>
+            <Typography variant="h6" sx={{ mt: 1, fontWeight: 600, color: 'text.primary' }}>
+              Mot de passe oublié ?
+            </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              Plateforme de gestion scolaire
+              Entrez votre email pour recevoir un lien de récupération
             </Typography>
           </Box>
 
-          {/* Login Form */}
-          <Box component="form" onSubmit={handleLogin} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {/* Form */}
+          <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
             {error && <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>}
+            {success && <Alert severity="success" sx={{ borderRadius: 2 }}>{success}</Alert>}
+            
             <TextField
               label="Email"
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               fullWidth
               required
+              disabled={!!success}
               autoComplete="email"
             />
-            <TextField
-              label="Mot de passe"
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              fullWidth
-              required
-              autoComplete="current-password"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
+            
             <Button
               type="submit"
               variant="contained"
               fullWidth
               size="large"
-              disabled={loading}
-              sx={{ mt: 1, py: 1.5, fontSize: '1rem' }}
+              disabled={loading || !!success}
+              sx={{ py: 1.5, fontSize: '1rem', fontWeight: 600 }}
             >
-              {loading ? 'Connexion...' : 'Se connecter'}
+              {loading ? 'Envoi...' : 'Envoyer le lien de récupération'}
+            </Button>
+
+            <Button
+              variant="text"
+              startIcon={<ArrowBack />}
+              onClick={() => navigate('/login')}
+              sx={{ color: 'text.secondary', mt: 1, fontWeight: 500 }}
+            >
+              Retour à la connexion
             </Button>
           </Box>
 
-          <Typography
-            variant="body2"
-            onClick={() => navigate('/forgot-password')}
-            sx={{
-              display: 'block',
-              textAlign: 'center',
-              mt: 2,
-              mb: 0.5,
-              color: 'primary.main',
-              fontWeight: 500,
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              '&:hover': {
-                textDecoration: 'underline',
-                color: 'primary.dark'
-              }
-            }}
-          >
-            Mot de passe oublié ?
-          </Typography>
-
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 2 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 4 }}>
             © 2026 E-SCHOOL GROUPE — Tous droits réservés
           </Typography>
         </CardContent>

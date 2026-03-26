@@ -27,6 +27,7 @@ import IssueList from './pages/maintenance/IssueList'
 
 // Ecole pages
 import SchoolDashboard from './pages/ecole/Dashboard'
+import ForgotPassword from './pages/ForgotPassword'
 
 function ProtectedRoute({ children, allowedRoles }: { children: JSX.Element; allowedRoles: string[] }) {
   const { isAuthenticated, user } = useAppSelector((s) => s.auth)
@@ -42,6 +43,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={isAuthenticated ? <Navigate to={`/${user?.role}`} replace /> : <Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/" element={<Navigate to={isAuthenticated ? `/${user?.role}` : '/login'} replace />} />
 
         {/* Directeur routes */}
