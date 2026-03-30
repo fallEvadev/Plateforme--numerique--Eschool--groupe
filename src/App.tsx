@@ -1,5 +1,8 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useAppSelector } from './app/hooks'
+import { useAppSelector, useAppDispatch } from './app/hooks'
+import { useEffect } from 'react'
+import { supabase } from './supabaseClient'
+import { loginSuccess, logout, setInitialized, AuthUser, UserRole, mapSupabaseRole } from './features/auth/authSlice'
+import { CircularProgress, Box as MuiBox } from '@mui/material'
 import Login from './pages/Login'
 import MainLayout from './components/layout/MainLayout'
 
@@ -28,16 +31,95 @@ import IssueList from './pages/maintenance/IssueList'
 // Ecole pages
 import SchoolDashboard from './pages/ecole/Dashboard'
 import ForgotPassword from './pages/ForgotPassword'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 function ProtectedRoute({ children, allowedRoles }: { children: JSX.Element; allowedRoles: string[] }) {
-  const { isAuthenticated, user } = useAppSelector((s) => s.auth)
+  const { isAuthenticated, user, isInitialized } = useAppSelector((s) => s.auth)
+
+  if (!isInitialized) {
+    return (
+      <MuiBox sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <CircularProgress />
+      </MuiBox>
+    )
+  }
+
   if (!isAuthenticated) return <Navigate to="/login" replace />
   if (!user || !allowedRoles.includes(user.role)) return <Navigate to="/login" replace />
   return children
 }
 
 export default function App() {
-  const { isAuthenticated, user } = useAppSelector((s) => s.auth)
+  const dispatch = useAppDispatch()
+  const { isAuthenticated, user, isInitialized } = useAppSelector((s) => s.auth)
+
+  useEffect(() => {
+    // Check initial session
+    const initAuth = async () => {
+      try {
+        console.log("Starting Auth Init...")
+        const { data: { session } } = await supabase.auth.getSession()
+        console.log("Session fetched:", !!session)
+        if (session?.user) {
+          const rawRole = session.user.user_metadata?.role ?? 'student'
+          const role = mapSupabaseRole(rawRole)
+          const authUser: AuthUser = {
+            id: session.user.id,
+            name: session.user.user_metadata?.full_name ?? session.user.email?.split('@')[0] ?? 'User',
+            email: session.user.email ?? '',
+            role: role,
+          }
+          dispatch(loginSuccess({ user: authUser }))
+        } else {
+          dispatch(setInitialized())
+        }
+      } catch (err) {
+        console.error("Auth init error:", err)
+        dispatch(setInitialized())
+      }
+    }
+
+    initAuth()
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        const rawRole = session.user.user_metadata?.role ?? 'student'
+        const role = mapSupabaseRole(rawRole)
+        const authUser: AuthUser = {
+          id: session.user.id,
+          name: session.user.user_metadata?.full_name ?? session.user.email?.split('@')[0] ?? 'User',
+          email: session.user.email ?? '',
+          role: role,
+        }
+        dispatch(loginSuccess({ user: authUser }))
+      } else {
+        dispatch(logout())
+        dispatch(setInitialized())
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [dispatch])
+
+  if (!isInitialized) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        backgroundColor: '#1a1a1a',
+        color: 'white',
+        fontFamily: 'sans-serif'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <h2>E-SCHOOL GROUPE</h2>
+          <p>Chargement de la session...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <BrowserRouter>

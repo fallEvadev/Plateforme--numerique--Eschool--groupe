@@ -1,16 +1,14 @@
 import { useState } from 'react'
 import {
   Box, Card, CardContent, TextField, Button, Typography,
-  Tab, Tabs, InputAdornment, IconButton, Alert, Avatar
+  InputAdornment, IconButton, Alert
 } from '@mui/material'
 import { Visibility, VisibilityOff, School } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '../app/hooks'
-import { loginSuccess, UserRole } from '../features/auth/authSlice'
-import { USERS } from '../users'
-
+import { loginSuccess, mapSupabaseRole } from '../features/auth/authSlice'
+import { supabase } from '../supabaseClient'
 import loginBg from '../assets/login_bg.png'
-
 export default function Login() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
@@ -25,29 +23,39 @@ export default function Login() {
     setError('')
     setLoading(true)
 
-    // Simulation de délai
-    await new Promise(r => setTimeout(r, 800))
+    try {
+      // ✅ CORRECTION 1 : email et password passés à signInWithPassword
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
 
-    const userMatch = USERS.find(u => u.email === email && u.password === password)
-    
-    if (userMatch) {
-      const { password: _, ...userWithoutPassword } = userMatch
-      dispatch(loginSuccess({ 
-        user: userWithoutPassword, 
-        token: 'mock-jwt-token-' + userMatch.role 
-      }))
-      // Redirection instantanée vers l'espace dédié
-      navigate(`/${userMatch.role}`)
-    } else {
-      setError('Identifiant ou mot de passe incorrect.')
+      if (error) {
+        setError(error.message)
+      } else {
+        // ✅ CORRECTION 6 : rôle récupéré depuis les métadonnées utilisateur
+        const rawRole = data.user?.user_metadata?.role ?? 'student'
+        const role = mapSupabaseRole(rawRole)
+        dispatch(loginSuccess({ 
+          user: {
+            id: data.user?.id ?? '',
+            name: data.user?.user_metadata?.full_name ?? data.user?.email?.split('@')[0] ?? 'User',
+            email: data.user?.email ?? '',
+            role,
+          }
+        }))
+        navigate('/')
+      }
+    } finally {
+      // ✅ CORRECTION 5 : setLoading(false) appelé une seule fois via finally
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
     <Box sx={{
       minHeight: '100vh',
-      backgroundImage: `url(${loginBg})`,
+      backgroundImage: `url(${loginBg})`, // ✅ loginBg maintenant importé
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       display: 'flex',
@@ -78,13 +86,13 @@ export default function Login() {
         }} />
       ))}
 
-      <Card sx={{ 
-        width: '100%', 
-        maxWidth: 480, 
-        borderRadius: 3, 
+      <Card sx={{
+        width: '100%',
+        maxWidth: 480,
+        borderRadius: 3,
         boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
         position: 'relative',
-        zIndex: 2 
+        zIndex: 2
       }}>
         <CardContent sx={{ p: 4 }}>
           {/* Header */}

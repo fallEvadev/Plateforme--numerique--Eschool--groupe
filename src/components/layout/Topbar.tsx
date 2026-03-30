@@ -69,7 +69,7 @@ export default function Topbar({ drawerWidth, onMenuToggle }: TopbarProps) {
           <Tooltip title="Mon compte">
             <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} sx={{ p: 0.5 }}>
               <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main', fontWeight: 700, fontSize: '0.85rem' }}>
-                {user?.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                {user?.name ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2) : 'U'}
               </Avatar>
             </IconButton>
           </Tooltip>

@@ -11,6 +11,25 @@ export interface AuthUser {
   className?: string // for teacher
 }
 
+export const roleMap: Record<string, UserRole> = {
+  'admin': 'directeur',
+  'directeur': 'directeur',
+  'pédago': 'pedagogie',
+  'pedagogie': 'pedagogie',
+  'drh': 'drh',
+  'DRH': 'drh',
+  'maintenancier': 'gestionnaire',
+  'gestionnaire': 'gestionnaire',
+  'formateur': 'teacher',
+  'teacher': 'teacher',
+  'ecole': 'ecole',
+  'student': 'ecole'
+}
+
+export function mapSupabaseRole(role: string): UserRole {
+  return roleMap[role.toLowerCase()] || 'ecole'
+}
+
 interface Report {
   id: string
   formateur: string
@@ -33,6 +52,7 @@ interface AuthState {
   codeGeneratedAt: string | null
   isCodePublished: boolean
   reports: Report[]
+  isInitialized: boolean
 }
 
 const initialState: AuthState = {
@@ -43,16 +63,20 @@ const initialState: AuthState = {
   codeGeneratedAt: null,
   isCodePublished: false,
   reports: [],
+  isInitialized: false,
 }
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    loginSuccess(state, action: PayloadAction<{ user: AuthUser; token: string }>) {
+    loginSuccess(state, action: PayloadAction<{ user: AuthUser }>) {
       state.user = action.payload.user
-      state.token = action.payload.token
       state.isAuthenticated = true
+      state.isInitialized = true
+    },
+    setInitialized(state) {
+      state.isInitialized = true
     },
     logout(state) {
       state.user = null
@@ -86,6 +110,6 @@ const authSlice = createSlice({
 })
 
 export const { 
-  loginSuccess, logout, setDailyCode, publishCode, addReport, updateReportStatus, editReport 
+  loginSuccess, logout, setDailyCode, publishCode, addReport, updateReportStatus, editReport, setInitialized
 } = authSlice.actions
 export default authSlice.reducer
