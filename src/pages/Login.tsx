@@ -9,6 +9,7 @@ import { useAppDispatch } from '../app/hooks'
 import { loginSuccess, mapSupabaseRole } from '../features/auth/authSlice'
 import { supabase } from '../supabaseClient'
 import loginBg from '../assets/login_bg.png'
+
 export default function Login() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
@@ -24,7 +25,6 @@ export default function Login() {
     setLoading(true)
 
     try {
-      // ✅ CORRECTION 1 : email et password passés à signInWithPassword
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -33,10 +33,9 @@ export default function Login() {
       if (error) {
         setError(error.message)
       } else {
-        // ✅ CORRECTION 6 : rôle récupéré depuis les métadonnées utilisateur
         const rawRole = data.user?.user_metadata?.role ?? 'student'
         const role = mapSupabaseRole(rawRole)
-        dispatch(loginSuccess({ 
+        dispatch(loginSuccess({
           user: {
             id: data.user?.id ?? '',
             name: data.user?.user_metadata?.full_name ?? data.user?.email?.split('@')[0] ?? 'User',
@@ -44,10 +43,11 @@ export default function Login() {
             role,
           }
         }))
-        navigate('/')
+        navigate(`/${role}`)
       }
+    } catch (err) {
+      setError("Une erreur inattendue est survenue")
     } finally {
-      // ✅ CORRECTION 5 : setLoading(false) appelé une seule fois via finally
       setLoading(false)
     }
   }
@@ -55,7 +55,7 @@ export default function Login() {
   return (
     <Box sx={{
       minHeight: '100vh',
-      backgroundImage: `url(${loginBg})`, // ✅ loginBg maintenant importé
+      backgroundImage: `url(${loginBg})`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       display: 'flex',
@@ -72,7 +72,6 @@ export default function Login() {
         zIndex: 1,
       }
     }}>
-      {/* Background decoration */}
       {[...Array(4)].map((_, i) => (
         <Box key={i} sx={{
           position: 'absolute',
@@ -95,7 +94,6 @@ export default function Login() {
         zIndex: 2
       }}>
         <CardContent sx={{ p: 4 }}>
-          {/* Header */}
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Box sx={{
               width: 70, height: 70, borderRadius: '50%',
@@ -113,17 +111,19 @@ export default function Login() {
             </Typography>
           </Box>
 
-          {/* Login Form */}
           <Box component="form" onSubmit={handleLogin} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {error && <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>}
+
             <TextField
               label="Email"
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               fullWidth
               required
               autoComplete="email"
             />
+
             <TextField
               label="Mot de passe"
               type={showPassword ? 'text' : 'password'}
@@ -142,42 +142,18 @@ export default function Login() {
                 ),
               }}
             />
+
             <Button
               type="submit"
               variant="contained"
               fullWidth
               size="large"
               disabled={loading}
-              sx={{ mt: 1, py: 1.5, fontSize: '1rem' }}
+              sx={{ mt: 2, py: 1.5, fontWeight: 600, borderRadius: 2 }}
             >
-              {loading ? 'Connexion...' : 'Se connecter'}
+              {loading ? 'Connexion en cours...' : 'Se connecter'}
             </Button>
           </Box>
-
-          <Typography
-            variant="body2"
-            onClick={() => navigate('/forgot-password')}
-            sx={{
-              display: 'block',
-              textAlign: 'center',
-              mt: 2,
-              mb: 0.5,
-              color: 'primary.main',
-              fontWeight: 500,
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              '&:hover': {
-                textDecoration: 'underline',
-                color: 'primary.dark'
-              }
-            }}
-          >
-            Mot de passe oublié ?
-          </Typography>
-
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 2 }}>
-            © 2026 E-SCHOOL GROUPE — Tous droits réservés
-          </Typography>
         </CardContent>
       </Card>
     </Box>
