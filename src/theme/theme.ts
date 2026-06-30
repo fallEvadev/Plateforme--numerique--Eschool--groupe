@@ -60,8 +60,8 @@ export const theme = createTheme({
     '0px 6px 20px rgba(0,0,0,0.10)',
     '0px 8px 24px rgba(0,0,0,0.12)',
     '0px 10px 28px rgba(0,0,0,0.14)',
-    ...Array(19).fill('0px 10px 28px rgba(0,0,0,0.14)') as string[],
-  ],
+    ...Array(19).fill('0px 10px 28px rgba(0,0,0,0.14)')
+  ] as any,
   components: {
     MuiButton: {
       styleOverrides: {

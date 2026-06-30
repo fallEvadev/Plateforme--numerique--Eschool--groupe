@@ -9,6 +9,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { logout } from '../../features/auth/authSlice'
+import { supabase } from '../../supabaseClient'
 
 interface TopbarProps {
   drawerWidth: number
@@ -21,7 +22,8 @@ export default function Topbar({ drawerWidth, onMenuToggle }: TopbarProps) {
   const { user } = useAppSelector((s) => s.auth)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
     dispatch(logout())
     navigate('/login')
   }

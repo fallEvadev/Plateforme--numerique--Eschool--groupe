@@ -71,7 +71,7 @@ export default function TeacherGrades() {
                           </Box>
                         </TableCell>
                         <TableCell>
-                          <Chip label={`${score}/20`} color={color as 'success' | 'primary' | 'error'} fontWeight={700} sx={{ fontWeight: 700 }} />
+                          <Chip label={`${score}/20`} color={color as 'success' | 'primary' | 'error'} sx={{ fontWeight: 700 }} />
                         </TableCell>
                         <TableCell>
                           <Slider

@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { mapSupabaseRole } from './authUtils'
 
 export type UserRole = 'directeur' | 'pedagogie' | 'drh' | 'gestionnaire' | 'teacher' | 'ecole'
 
@@ -9,26 +10,10 @@ export interface AuthUser {
   role: UserRole
   avatar?: string
   className?: string // for teacher
+  childName?: string // for parent
 }
 
-export const roleMap: Record<string, UserRole> = {
-  'admin': 'directeur',
-  'directeur': 'directeur',
-  'pédago': 'pedagogie',
-  'pedagogie': 'pedagogie',
-  'drh': 'drh',
-  'DRH': 'drh',
-  'maintenancier': 'gestionnaire',
-  'gestionnaire': 'gestionnaire',
-  'formateur': 'teacher',
-  'teacher': 'teacher',
-  'ecole': 'ecole',
-  'student': 'ecole'
-}
-
-export function mapSupabaseRole(role: string): UserRole {
-  return roleMap[role.toLowerCase()] || 'ecole'
-}
+export { mapSupabaseRole } from './authUtils'
 
 interface Report {
   id: string

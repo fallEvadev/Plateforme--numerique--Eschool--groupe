@@ -1,7 +1,8 @@
-import { useAppSelector, useAppDispatch } from './app/hooks'
+ import { useAppSelector, useAppDispatch } from './app/hooks'
 import { useEffect } from 'react'
 import { supabase } from './supabaseClient'
-import { loginSuccess, logout, setInitialized, AuthUser, UserRole, mapSupabaseRole } from './features/auth/authSlice'
+import { loginSuccess, logout, setInitialized, AuthUser } from './features/auth/authSlice'
+import { resolveAuthUserFromSession } from './features/auth/authUtils'
 import { CircularProgress, Box as MuiBox } from '@mui/material'
 import Login from './pages/Login'
 import MainLayout from './components/layout/MainLayout'
@@ -54,44 +55,29 @@ export default function App() {
   const { isAuthenticated, user, isInitialized } = useAppSelector((s) => s.auth)
 
   useEffect(() => {
-    // Check initial session
     const initAuth = async () => {
       try {
-        console.log("Starting Auth Init...")
         const { data: { session } } = await supabase.auth.getSession()
-        console.log("Session fetched:", !!session)
-        if (session?.user) {
-          const rawRole = session.user.user_metadata?.role ?? 'student'
-          const role = mapSupabaseRole(rawRole)
-          const authUser: AuthUser = {
-            id: session.user.id,
-            name: session.user.user_metadata?.full_name ?? session.user.email?.split('@')[0] ?? 'User',
-            email: session.user.email ?? '',
-            role: role,
-          }
+        const authUser = resolveAuthUserFromSession(session, null)
+
+        if (authUser) {
           dispatch(loginSuccess({ user: authUser }))
         } else {
+          dispatch(logout())
           dispatch(setInitialized())
         }
       } catch (err) {
-        console.error("Auth init error:", err)
+        console.error('Auth init error:', err)
         dispatch(setInitialized())
       }
     }
 
     initAuth()
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        const rawRole = session.user.user_metadata?.role ?? 'student'
-        const role = mapSupabaseRole(rawRole)
-        const authUser: AuthUser = {
-          id: session.user.id,
-          name: session.user.user_metadata?.full_name ?? session.user.email?.split('@')[0] ?? 'User',
-          email: session.user.email ?? '',
-          role: role,
-        }
+      const authUser = resolveAuthUserFromSession(session, null)
+
+      if (authUser) {
         dispatch(loginSuccess({ user: authUser }))
       } else {
         dispatch(logout())

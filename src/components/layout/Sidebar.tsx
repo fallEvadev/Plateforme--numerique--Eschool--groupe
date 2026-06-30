@@ -10,6 +10,7 @@ import {
 } from '@mui/icons-material'
 import { useAppSelector, useAppDispatch } from '../../app/hooks'
 import { logout } from '../../features/auth/authSlice'
+import { supabase } from '../../supabaseClient'
 
 const DRAWER_WIDTH = 260
 
@@ -170,7 +171,8 @@ function SidebarContent({ role }: { role: string }) {
           variant="outlined" 
           color="error" 
           startIcon={<Logout />} 
-          onClick={() => {
+          onClick={async () => {
+            await supabase.auth.signOut()
             dispatch(logout())
             navigate('/login')
           }}

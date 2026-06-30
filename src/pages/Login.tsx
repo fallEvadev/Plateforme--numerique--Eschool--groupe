@@ -6,7 +6,8 @@ import {
 import { Visibility, VisibilityOff, School } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '../app/hooks'
-import { loginSuccess, mapSupabaseRole } from '../features/auth/authSlice'
+import { loginSuccess } from '../features/auth/authSlice'
+import { resolveAuthUserFromSession } from '../features/auth/authUtils'
 import { supabase } from '../supabaseClient'
 import loginBg from '../assets/login_bg.png'
 
@@ -32,18 +33,14 @@ export default function Login() {
 
       if (error) {
         setError(error.message)
-      } else {
-        const rawRole = data.user?.user_metadata?.role ?? 'student'
-        const role = mapSupabaseRole(rawRole)
-        dispatch(loginSuccess({
-          user: {
-            id: data.user?.id ?? '',
-            name: data.user?.user_metadata?.full_name ?? data.user?.email?.split('@')[0] ?? 'User',
-            email: data.user?.email ?? '',
-            role,
-          }
-        }))
-        navigate(`/${role}`)
+      } else if (data.user) {
+        const authUser = resolveAuthUserFromSession(data, null)
+        if (authUser) {
+          dispatch(loginSuccess({ user: authUser }))
+          navigate(`/${authUser.role}`)
+        } else {
+          setError('Impossible de créer la session utilisateur à partir des informations fournies.')
+        }
       }
     } catch (err) {
       setError("Une erreur inattendue est survenue")
